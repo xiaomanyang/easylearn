@@ -1,23 +1,20 @@
 <%@ page language="java" contentType="text/html; charset=utf-8"
     pageEncoding="utf-8"%>
-<div id="dictionaryPanel" class="easyui-layout" data-options="fit:true">
+<div id="coursePanel" class="easyui-layout" data-options="fit:true">
     <div data-options="region:'north'" class="search_banner">
 		<div class="group">
-			<!-- <label>关键字：</label> -->
-			<input class="easyui-searchbox" style="width: 200px;" type="text" id="txtDictionaryKey" data-options="prompt:'代码/名称',searcher:btnRefreshDictionary"></input>
+			<label>分类：</label>
+			<input id="selectClassification" class="easyui-combobox" style="width: 200px;" data-options="valueField:'id',textField:'classificationName',url:'classification/select.do',panelHeight:'auto',panelMaxHeight:'400'"></input>
 		</div>
-		<!-- <div class="group">
-			<button type="button" id="btnSearch" onclick="btnRefreshDictionary()" class="btn btn-primary">查询</button>
-		</div> -->
     </div>
     <div data-options="region:'center'">
-    	<table id="dt_dictionary"></table>
+    	<table id="dt_course"></table>
     </div>
     <button type="submit"></button>
 </div>
 
-<div id="dictionaryAdd">
-<form id="dictionaryForm" class="form-horizontal">
+<div id="courseAdd">
+<form id="courseForm" class="form-horizontal">
 	<input id="id" name="id" type="hidden">
 	<div class="form-group">
 		<label class="col-sm-2 control-label" for="parentCode">上级代码</label>
@@ -37,12 +34,6 @@
 			<input class="form-control" id="showName" name="showName" type="text">
 		</div>
 	</div>
-	<!-- <div class="form-group">
-		<label class="col-sm-2 control-label" for="isDelete">是否删除</label>
-		<div class="col-sm-10">
-			<input class="form-control" id="isDelete" type="checkbox">
-		</div>
-	</div> -->
 	<div class="form-group">
 		<label class="col-sm-2 control-label" for="memo">备注</label>
 		<div class="col-sm-10">
@@ -57,8 +48,8 @@
 <script type="text/javascript">
 var baseUrl = '${pageContext.request.contextPath}';
 
-$('#dt_dictionary').datagrid({
-	url: '${pageContext.request.contextPath}/dictionary/getListByPage.do',
+$('#dt_course').datagrid({
+	url: '${pageContext.request.contextPath}/course/getListByPage.do',
 	fit : true,
 	border : false,
 	fitColumns : true,
@@ -97,15 +88,15 @@ $('#dt_dictionary').datagrid({
     	text : '增加',
 		iconCls : 'icon-add',
 		handler : function() {
-			btnAddDictionary();
-			refreshDictionaryValid();
+			btnAddcourse();
+			refreshcourseValid();
 		}
     } ,'-',{
     	text : '修改',
 		iconCls : 'icon-edit',
 		handler : function() {
-			btnEditDictionary();
-			refreshDictionaryValid();
+			btnEditcourse();
+			refreshcourseValid();
 		}
 	},'-',{
     	text : '禁用',
@@ -121,7 +112,7 @@ $('#dt_dictionary').datagrid({
 		  }
 	},
 	onSelect:function(rowIndex, rowData){
-		var btnEnable=$('#dictionaryPanel span[class="l-btn-icon icon-remove"]').prev();
+		var btnEnable=$('#coursePanel span[class="l-btn-icon icon-remove"]').prev();
 		if(rowData.isDelete==1){
 			btnEnable.text("启用");
 		}else{
@@ -129,44 +120,33 @@ $('#dt_dictionary').datagrid({
 		}
 	},
 	onUnselect:function(rowIndex, rowData){
-		var rows = $('#dt_dictionary').datagrid("getSelections");
+		var rows = $('#dt_course').datagrid("getSelections");
 		if(rows.length>0){
-			$('#dictionaryPanel span[class="l-btn-icon icon-remove"]').prev().text(rows[0].isDelete==1?"启用":"禁用");
+			$('#coursePanel span[class="l-btn-icon icon-remove"]').prev().text(rows[0].isDelete==1?"启用":"禁用");
 		}
 	}
 });
 
-/* 分页插件初始化 */
-var p = $('#dt_dictionary').datagrid('getPager'); 
-$(p).pagination({  
-	pageSize: 10,  
-    pageList: [10,20],  
-    showPageList: true,  
-    showRefresh: true,
-    beforePageText: '第',  
-    afterPageText: '页    共 {pages} 页',  
-    displayMsg: '当前显示 {from} - {to} 条记录   共 {total} 条记录',
-});  
 
 /* 获取数据 */
-function btnRefreshDictionary()
+function btnRefreshcourse()
 {
-	$('#dt_dictionary').datagrid('load', {    
-		'searchKey':$("#txtDictionaryKey").val()
+	$('#dt_course').datagrid('load', {    
+		'searchKey':$("#txtcourseKey").val()
 	});
 }
 
 /* 增加 */
-function btnAddDictionary(){
+function btnAddcourse(){
 	$('#id').val('');
-	$('#dictionaryForm')[0].reset();
-	$('#dictionaryAdd').dialog({title: "增加",iconCls: 'icon-add'});
-	$('#dictionaryAdd').dialog('open');
+	$('#courseForm')[0].reset();
+	$('#courseAdd').dialog({title: "增加",iconCls: 'icon-add'});
+	$('#courseAdd').dialog('open');
 }
 
 /* 修改 单条*/
-function btnEditDictionary(){
-	var rows = $('#dt_dictionary').datagrid("getSelections");    
+function btnEditcourse(){
+	var rows = $('#dt_course').datagrid("getSelections");    
 	if(rows.length==0){
 		$.messager.alert('警告','请选择要修改的行！','info');
 		return;
@@ -175,37 +155,15 @@ function btnEditDictionary(){
 		$.messager.alert('警告','请选择单条记录修改！','info');
 		return;
 	}
-	setWebControlValueByForm('dictionaryForm',rows[0]);
-	$('#dictionaryAdd').dialog({title: "编辑",iconCls: 'icon-edit'});
-	$('#dictionaryAdd').dialog('open');
+	setWebControlValueByForm('courseForm',rows[0]);
+	$('#courseAdd').dialog({title: "编辑",iconCls: 'icon-edit'});
+	$('#courseAdd').dialog('open');
 }
-
-/* 单个删除 */
-/* function btnDel(delId){
-	$.messager.confirm('确认','您确认想要删除记录吗？',function(r){    
-	    if (r){    
-	    	$.ajax({  
-	    		type : "post",  
-	    	    url : baseUrl+"/dictionary/delete.do",   
-	    	    data : {'id':delId},  
-	    	    success : function(result) {
-	    	    	var json = JSON.parse(result);
-	    	    	if(!json.req){
-	    	    		$.messager.alert('温馨提示',json.msg,'error');
-	    	    	}else{
-	    	    		$.messager.alert('温馨提示',json.msg,'info');
-	    	    		btnRefreshDictionary(1,10);
-	    	    	}
-	    	    }
-	    	});	    	
-	    }
-	});
-} */
 
 /* 批量启用/禁用 */
 function btnBatchOnOff(){
-	var textEnable=$('#dictionaryPanel span[class="l-btn-icon icon-remove"]').prev().text();
-	var rows = $('#dt_dictionary').datagrid("getSelections");    
+	var textEnable=$('#coursePanel span[class="l-btn-icon icon-remove"]').prev().text();
+	var rows = $('#dt_course').datagrid("getSelections");    
 	if(rows.length<=0){
 		$.messager.alert('警告','请选择要'+textEnable+'的行','info');
 		return;
@@ -219,7 +177,7 @@ function btnBatchOnOff(){
 	    if (r){    
 	    	$.ajax({  
 	    		type : "post",  
-	    	    url : baseUrl+"/dictionary/batchEnableByIds.do",   
+	    	    url : baseUrl+"/course/batchEnableByIds.do",   
 	    	    data : paramIds,  
 	    	    success : function(result) {
 	    	    	var json = JSON.parse(result);
@@ -227,63 +185,26 @@ function btnBatchOnOff(){
 	    	    		$.messager.alert('温馨提示',json.msg,'error');
 	    	    	}else{
 	    	    		$.messager.alert('温馨提示',json.msg,'success');
-	    	    		btnRefreshDictionary();
+	    	    		btnRefreshcourse();
 	    	    	}
 	    	    }
 	    	});	    	
 	    }    
 	});
 }
-/* 批量删除 */
-/* function btnBatchDel(){
-	var rows = $('#dt_dictionary').datagrid("getSelections");    
-	if(rows.length<=0){
-		$.messager.alert('警告','请选择要删除的行','info');
-		return;
-	}
-	var delIds=new Array();
-	for(var index in rows){
-		delIds.push(rows[index].id);
-	}
-	var paramIds=jQuery.param({'ids':delIds},true);
-	$.messager.confirm('确认','您确认想要删除记录吗？',function(r){    
-	    if (r){    
-	    	$.ajax({  
-	    		type : "post",  
-	    	    url : baseUrl+"/dictionary/batchDeleteByIds.do",   
-	    	    data : paramIds,  
-	    	    success : function(result) {
-	    	    	var json = JSON.parse(result);
-	    	    	if(!json.req){
-	    	    		$.messager.alert('温馨提示',json.msg,'error');
-	    	    	}else{
-	    	    		$.messager.alert('温馨提示',json.msg,'success');
-	    	    		btnRefreshDictionary();
-	    	    	}
-	    	    }
-	    	});	    	
-	    }    
-	});
-} */
-
-/* 操作
-function formatOper(val,row,index){  
-	var lab_edit = '<a href="#" onclick="btn_edit('+row.id+')">修改</a>';
-    return lab_edit;
-} */ 
 
 $('#parentCode').validatebox({required: true});
 $('#code').validatebox({required: true});
 $('#showName').validatebox({required: true});
 
-function refreshDictionaryValid(){
+function refreshcourseValid(){
 	$('#parentCode').validatebox('validate');
 	$('#code').validatebox('validate');
 	$('#showName').validatebox('validate');
 }
 
 /* 添加或編輯按鈕彈出框 */
-$('#dictionaryAdd').dialog({  
+$('#courseAdd').dialog({  
     title: "增加",  
     width: 500,  
     height: 350,
@@ -296,29 +217,22 @@ $('#dictionaryAdd').dialog({
 		text:'保存',
 		iconCls:'icon-ok',
 		handler:function(){
-			if(!$('#dictionaryForm').form('validate')){
+			if(!$('#courseForm').form('validate')){
 				return;
 			}
-			/* var dictionaryId = $('#dictionaryId').val();
-			var code = $('#code').val();
-			var parentCode = $('#parentCode').val();
-			var showName = $('#showName').val();
-			var isDelete = $('#isDelete').val();
-			var memo = $('#memo').val(); */
-			/* data : {'id':dictionaryId,'code':code,'parentCode':parentCode,'showName':showName,'isDelete':isDelete,'memo':memo}, */
 			$.ajax({
 				type : "post",  
-	    	    url : baseUrl+"/dictionary/submitForm.do",  
-	    	    data:$("#dictionaryForm").serializeArray(),
+	    	    url : baseUrl+"/course/submitForm.do",  
+	    	    data:$("#courseForm").serializeArray(),
 	    	    success : function(result) {  
 	    	    	var json = JSON.parse(result);
 	    	    	if(!json.req){
 	    	    		$.messager.alert('温馨提示',json.msg,'error');
 	    	    	}else{
-	    	    		$('#dictionaryId').val('');
-	    	    		btnRefreshDictionary();
+	    	    		$('#courseId').val('');
+	    	    		btnRefreshcourse();
 		    	    	$.messager.progress('close');
-		    	    	$('#dictionaryAdd').dialog('close');
+		    	    	$('#courseAdd').dialog('close');
 	    	    		$.messager.alert('温馨提示',json.msg,'success');
 	    	    	}
 	    	    },  
@@ -330,7 +244,7 @@ $('#dictionaryAdd').dialog({
 	},{
 		text:'关闭',
 		handler:function(){
-			$('#dictionaryAdd').dialog('close');
+			$('#courseAdd').dialog('close');
 		}
 	}]
 }); 

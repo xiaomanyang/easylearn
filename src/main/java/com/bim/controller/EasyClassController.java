@@ -35,6 +35,12 @@ public class EasyClassController {
 		return R.ToPage(true, list, Code.C_200, pageObj.getTotal());
 	}
 	
+	@RequestMapping("select")
+	@ResponseBody
+	public List<EasyClassification> select(){
+		return easyClassificationMapper.selectAll();
+	}
+	
 	@RequestMapping("add")
 	@ResponseBody
 	public JSONObject add(EasyClassification clsss){
