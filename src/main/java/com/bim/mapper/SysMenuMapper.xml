@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bim.dao.SysMenuMapper">
+  <resultMap id="BaseResultMap" type="com.bim.entity.SysMenu">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="code" jdbcType="VARCHAR" property="code" />
+    <result column="menu_name" jdbcType="VARCHAR" property="menuName" />
+    <result column="menu_name_en" jdbcType="VARCHAR" property="menuNameEn" />
+    <result column="url" jdbcType="VARCHAR" property="url" />
+    <result column="icon" jdbcType="VARCHAR" property="icon" />
+    <result column="sign" jdbcType="INTEGER" property="sign" />
+    <result column="memo" jdbcType="VARCHAR" property="memo" />
+    <result column="user_id" jdbcType="VARCHAR" property="userId" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, code, menu_name,menu_name_en, url, icon, sign, memo
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from sys_menu
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <select id="selectBySign" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from sys_menu
+    where sign = #{type,jdbcType=INTEGER}
+    order by sort_order
+  </select>
+  <select id="selectByUser" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select b.*
+    from sys_user_menu_rel a inner JOIN sys_menu b on a.menu_id=b.id 
+    where a.user_id=#{userId,jdbcType=INTEGER} order by sort_order
+  </select>
+  <select id="selectManagerMenu" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    SELECT m.*, mm.user_id 
+	FROM sys_menu m
+	LEFT OUTER JOIN sys_manager_memu_rel mm
+	ON m.id = mm.menu_id AND mm.user_id = #{userId,jdbcType=INTEGER}
+	WHERE sign = 9
+	order by sort_order
+  </select>
+  <select id="selectManagerMenuByManagerId" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    SELECT om.*, omm.user_id
+	FROM
+	(SELECT m.*
+	FROM sys_menu m, sys_manager_memu_rel mm
+	where m.id = mm.menu_id
+	AND user_id = #{managerId,jdbcType=INTEGER}
+	AND m.sign = 9) AS om
+	LEFT OUTER JOIN sys_manager_memu_rel omm
+	ON om.id = omm.menu_id
+	AND omm.user_id = #{userId,jdbcType=INTEGER}
+	order by sort_order
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from sys_menu
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.bim.entity.SysMenu">
+    insert into sys_menu (id, code, menu_name, menu_name_en,
+      url, icon, sign, memo
+      )
+    values (#{id,jdbcType=INTEGER}, #{code,jdbcType=VARCHAR}, #{menuName,jdbcType=VARCHAR}, #{menuNameEn,jdbcType=VARCHAR},
+      #{url,jdbcType=VARCHAR}, #{icon,jdbcType=VARCHAR}, #{sign,jdbcType=INTEGER}, #{memo,jdbcType=VARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.bim.entity.SysMenu">
+    insert into sys_menu
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="code != null">
+        code,
+      </if>
+      <if test="menuName != null">
+        menu_name,
+      </if>
+      <if test="menuNameEn != null">
+        menu_name_en,
+      </if>
+      <if test="url != null">
+        url,
+      </if>
+      <if test="icon != null">
+        icon,
+      </if>
+      <if test="sign != null">
+        sign,
+      </if>
+      <if test="memo != null">
+        memo,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="code != null">
+        #{code,jdbcType=VARCHAR},
+      </if>
+      <if test="menuName != null">
+        #{menuName,jdbcType=VARCHAR},
+      </if>
+      <if test="menuNameEn != null">
+        #{menuNameEn,jdbcType=VARCHAR},
+      </if>
+      <if test="url != null">
+        #{url,jdbcType=VARCHAR},
+      </if>
+      <if test="icon != null">
+        #{icon,jdbcType=VARCHAR},
+      </if>
+      <if test="sign != null">
+        #{sign,jdbcType=INTEGER},
+      </if>
+      <if test="memo != null">
+        #{memo,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.bim.entity.SysMenu">
+    update sys_menu
+    <set>
+      <if test="code != null">
+        code = #{code,jdbcType=VARCHAR},
+      </if>
+      <if test="menuName != null">
+        menu_name = #{menuName,jdbcType=VARCHAR},
+      </if>
+      <if test="menuNameEn != null">
+        menu_name_en = #{menuNameEn,jdbcType=VARCHAR},
+      </if>
+      <if test="url != null">
+        url = #{url,jdbcType=VARCHAR},
+      </if>
+      <if test="icon != null">
+        icon = #{icon,jdbcType=VARCHAR},
+      </if>
+      <if test="sign != null">
+        sign = #{sign,jdbcType=INTEGER},
+      </if>
+      <if test="memo != null">
+        memo = #{memo,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.bim.entity.SysMenu">
+    update sys_menu
+    set code = #{code,jdbcType=VARCHAR},
+      menu_name = #{menuName,jdbcType=VARCHAR},
+      menu_name_en = #{menuNameEn,jdbcType=VARCHAR},
+      url = #{url,jdbcType=VARCHAR},
+      icon = #{icon,jdbcType=VARCHAR},
+      sign = #{sign,jdbcType=INTEGER},
+      memo = #{memo,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  
+  <select id="getSystemMenus" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from sys_manager_memu_rel a inner join sys_menu b on a.menu_id=b.id
+	where a.user_id=#{userId,jdbcType=INTEGER}
+  </select>
+</mapper>

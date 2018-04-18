@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<title>BIM管控系统-下载</title>
+<!-- Tell the browser to be responsive to screen width -->
+<meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+<style type="text/css">
+html, body {
+	height: 100%;
+	width: 100%;
+	margin: 0;
+	padding: 0;
+}
+.body-bg {
+	background: url(static/bim/img/apk_yd.png) no-repeat;
+	width: 100%;
+	height: 100%;
+	background-size: 100% 100%;
+	position: absolute;
+	filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='static/bim/img/apk_yd.png',
+		sizingMethod='scale');
+}
+</style>
+</head>
+<body>
+	<script src="static/plugins/jQuery/jquery-2.2.3.min.js"></script>
+	<script type="text/javascript">
+  // 获取终端的相关信息
+  var Terminal = {
+      // 辨别移动终端类型
+      platform : function(){
+          var u = navigator.userAgent, app = navigator.appVersion;
+          return {
+              // android终端或者uc浏览器
+              android: u.indexOf('Android') > -1 || u.indexOf('Linux') > -1,
+              // 是否为iPhone或者QQHD浏览器
+              iPhone: u.indexOf('iPhone') > -1 ,
+              // 是否iPad
+              iPad: u.indexOf('iPad') > -1
+          };
+      }(),
+      // 辨别移动终端的语言：zh-cn、en-us、ko-kr、ja-jp...
+      language : (navigator.browserLanguage || navigator.language).toLowerCase()
+  }
+  
+  function isWeiXin() {
+		  var ua = window.navigator.userAgent.toLowerCase();
+		  console.log(ua);//mozilla/5.0 (iphone; cpu iphone os 9_1 like mac os x) applewebkit/601.1.46 (khtml, like gecko)version/9.0 mobile/13b143 safari/601.1
+		  if (ua.match(/MicroMessenger/i) == 'micromessenger') {
+		  	return true;
+		  } else {
+		  	return false;
+		  }
+	}
+  
+  $.post('api/appversion/current.do',function(result){
+	  	console.log(result);
+		if(!result || !result.success){
+			return;
+		}
+		// 根据不同的终端，跳转到不同的地址
+		  var theUrl =result.data.androidAddress;// 'http://www.project-5d.com/resource1/app/BIMTech1.1.4.apk';
+		  if(Terminal.platform.android){
+			  if(isWeiXin()){
+				  //theUrl = 'https://share.weiyun.com/96f1b9ca9059177f4e668e1218e84e5c'; //'http://www.project-5d.com/resource1/app/bim.apk';
+				  document.body.setAttribute('class','body-bg');
+			  }
+		  }else if(Terminal.platform.iPhone){
+		      theUrl =result.data.iosAddress;// 'https://itunes.apple.com/cn/app/bim/%E7%AE%A1%E6%8E%A7%E7%B3%BB%E7%BB%9F/id1233536335?mt=8';
+		  }else if(Terminal.platform.iPad){
+			  theUrl =result.data.iosAddress;// 'https://itunes.apple.com/cn/app/bim/%E7%AE%A1%E6%8E%A7%E7%B3%BB%E7%BB%9F/id1233536335?mt=8';
+		      // 区分开多国语言
+		      /* switch(Terminal.language){
+		          case 'en-us':
+		              theUrl = '你的iPad APP（英文版）对应下载地址：APP Store地址';
+		              break;
+		          case 'ko-kr':
+		              theUrl = '你的iPad APP（韩语版）对应下载地址：APP Store地址';
+		              break;
+		          case 'ja-jp':
+		              theUrl = '你的iPad APP（日文版）对应下载地址：APP Store地址';
+		              break;
+		          default:
+		              theUrl = 'https://itunes.apple.com/cn/app/bim/%E7%AE%A1%E6%8E%A7%E7%B3%BB%E7%BB%9F/id1233536335?mt=8';
+		      } */
+		  }
+		  location.href = theUrl;
+	},'json');
+</script>
+</body>
+</html>

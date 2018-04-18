@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bim.dao.BimAppVersionMapper">
+  <resultMap id="BaseResultMap" type="com.bim.entity.BimAppVersion">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="ios_version" jdbcType="VARCHAR" property="iosVersion" />
+    <result column="ios_note" jdbcType="VARCHAR" property="iosNote" />
+    <result column="ios_address" jdbcType="VARCHAR" property="iosAddress" />
+    <result column="android_version" jdbcType="VARCHAR" property="androidVersion" />
+    <result column="android_note" jdbcType="VARCHAR" property="androidNote" />
+    <result column="android_address" jdbcType="VARCHAR" property="androidAddress" />
+    <result column="current_version" jdbcType="BIT" property="currentVersion" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, ios_version, ios_note, ios_address, android_version, android_note, android_address, 
+    current_version
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from bim_app_version
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <select id="selectCurrentVersion" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from bim_app_version
+    where current_version = 1
+  </select>
+  <select id="listAppVersion" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from bim_app_version
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from bim_app_version
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.bim.entity.BimAppVersion">
+    insert into bim_app_version (id, ios_version, ios_note, 
+      ios_address, android_version, android_note, 
+      android_address, current_version)
+    values (#{id,jdbcType=INTEGER}, #{iosVersion,jdbcType=VARCHAR}, #{iosNote,jdbcType=VARCHAR}, 
+      #{iosAddress,jdbcType=VARCHAR}, #{androidVersion,jdbcType=VARCHAR}, #{androidNote,jdbcType=VARCHAR}, 
+      #{androidAddress,jdbcType=VARCHAR}, #{currentVersion,jdbcType=BIT})
+  </insert>
+  <insert id="insertSelective" parameterType="com.bim.entity.BimAppVersion">
+    insert into bim_app_version
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="iosVersion != null">
+        ios_version,
+      </if>
+      <if test="iosNote != null">
+        ios_note,
+      </if>
+      <if test="iosAddress != null">
+        ios_address,
+      </if>
+      <if test="androidVersion != null">
+        android_version,
+      </if>
+      <if test="androidNote != null">
+        android_note,
+      </if>
+      <if test="androidAddress != null">
+        android_address,
+      </if>
+      <if test="currentVersion != null">
+        current_version,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="iosVersion != null">
+        #{iosVersion,jdbcType=VARCHAR},
+      </if>
+      <if test="iosNote != null">
+        #{iosNote,jdbcType=VARCHAR},
+      </if>
+      <if test="iosAddress != null">
+        #{iosAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="androidVersion != null">
+        #{androidVersion,jdbcType=VARCHAR},
+      </if>
+      <if test="androidNote != null">
+        #{androidNote,jdbcType=VARCHAR},
+      </if>
+      <if test="androidAddress != null">
+        #{androidAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="currentVersion != null">
+        #{currentVersion,jdbcType=BIT},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.bim.entity.BimAppVersion">
+    update bim_app_version
+    <set>
+      <if test="iosVersion != null">
+        ios_version = #{iosVersion,jdbcType=VARCHAR},
+      </if>
+      <if test="iosNote != null">
+        ios_note = #{iosNote,jdbcType=VARCHAR},
+      </if>
+      <if test="iosAddress != null">
+        ios_address = #{iosAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="androidVersion != null">
+        android_version = #{androidVersion,jdbcType=VARCHAR},
+      </if>
+      <if test="androidNote != null">
+        android_note = #{androidNote,jdbcType=VARCHAR},
+      </if>
+      <if test="androidAddress != null">
+        android_address = #{androidAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="currentVersion != null">
+        current_version = #{currentVersion,jdbcType=BIT},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateSetCurrent0" >
+	UPDATE bim_app_version SET current_version = 0    
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.bim.entity.BimAppVersion">
+    update bim_app_version
+    set ios_version = #{iosVersion,jdbcType=VARCHAR},
+      ios_note = #{iosNote,jdbcType=VARCHAR},
+      ios_address = #{iosAddress,jdbcType=VARCHAR},
+      android_version = #{androidVersion,jdbcType=VARCHAR},
+      android_note = #{androidNote,jdbcType=VARCHAR},
+      android_address = #{androidAddress,jdbcType=VARCHAR},
+      current_version = #{currentVersion,jdbcType=BIT}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

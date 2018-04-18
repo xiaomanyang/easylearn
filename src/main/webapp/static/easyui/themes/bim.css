@@ -1,0 +1,13 @@
+.bim_menu_button{
+	text-decoration: none; 
+	color: #306ADE; 
+	font-weight: bold;
+}
+
+.bim_menu_button div{
+	width:170px; 
+	height: 60px; 
+	text-align: center; 
+	margin: 10px 0; 
+	border: 1px #000;
+}

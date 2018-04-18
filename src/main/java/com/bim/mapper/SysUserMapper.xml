@@ -1,0 +1,455 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bim.dao.SysUserMapper">
+  <resultMap id="BaseResultMap" type="com.bim.entity.SysUser">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="account" jdbcType="VARCHAR" property="account" />
+    <result column="password" jdbcType="VARCHAR" property="password" />
+    <result column="real_name" jdbcType="VARCHAR" property="realName" />
+    <result column="mobile_zone" jdbcType="VARCHAR" property="mobileZone" />
+    <result column="mobile" jdbcType="VARCHAR" property="mobile" />
+    <result column="email" jdbcType="VARCHAR" property="email" />
+    <result column="status" jdbcType="INTEGER" property="status" />
+    <result column="user_level" jdbcType="VARCHAR" property="userLevel" />
+    <result column="show_name" jdbcType="VARCHAR" property="userLevelName" />
+    <result column="render_level" jdbcType="VARCHAR" property="renderLevel" />
+    <result column="memo" jdbcType="VARCHAR" property="memo" />
+    <result column="sys_org_id" jdbcType="INTEGER" property="sysOrgId" />
+    <result column="sysOrgName" jdbcType="VARCHAR" property="sysOrgName" />
+    <result column="sys_dep_id" jdbcType="INTEGER" property="sysDepId" />
+    <result column="department_name" jdbcType="VARCHAR" property="sysDepName" />
+    <result column="user_type" jdbcType="INTEGER" property="userType" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    <result column="create_user" jdbcType="INTEGER" property="createUser" />
+    <result column="update_user" jdbcType="INTEGER" property="updateUser" />
+    <result column="sur_names" jdbcType="VARCHAR" property="surNames" />
+    <result column="voice" jdbcType="INTEGER" property="voice" />
+    <result column="device_count" jdbcType="INTEGER" property="deviceCount" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, account, password, real_name, mobile_zone, mobile, email, status, user_level,render_level,
+    memo, sys_org_id, sys_dep_id, user_type, create_time, update_time, create_user, update_user,sur_names,
+    voice,device_count
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from sys_user
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <select id="selectByMobile" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from sys_user
+    where mobile = #{mobile}
+  </select>
+  <select id="selectIsHaveInOrgIds" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from sys_user where sys_org_id in
+    <foreach item="item" collection="ids" index="index" open="(" separator="," close=")"> 
+		#{item}
+	</foreach>
+  </select>
+  <select id="selectIsHaveInDeptIds" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from sys_user where sys_dep_id in
+    <foreach item="item" collection="ids" index="index" open="(" separator="," close=")"> 
+		#{item}
+	</foreach>
+  </select>
+  <!-- 根据组织id查询用户list 并不允许查询出自己and sys_org_id!='' and sys_org_id is not null-->
+  <!-- 20170831修改 允许查询出自己 -->
+  <select id="selectByOrgId" resultMap="BaseResultMap">
+    select 
+    	id, account, real_name, mobile_zone, mobile, email, status, user_level, render_level,
+    	memo, sys_org_id, sys_dep_id, user_type, create_time, update_time, create_user, update_user,sur_names,voice,device_count
+    from sys_user
+    <where>
+		 <if test="userType!=0"> 
+		 	sys_org_id = #{sysOrgId,jdbcType=INTEGER}
+		 </if>
+		 <!-- id != #{id,jdbcType=INTEGER}  -->
+		 <if test="mobile != null and mobile != ''"> 
+		 	and mobile like CONCAT('%',#{mobile},'%')  
+		 </if>
+    </where>
+    order by create_time desc
+  </select>
+	<select id="selectByAccountAndPwd" resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />
+		from sys_user
+		where mobile = #{account} and password=#{password}
+	</select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from sys_user
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insertSelective" useGeneratedKeys="true" keyProperty="id" parameterType="com.bim.entity.SysUser">
+    insert into sys_user
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="account != null">
+        account,
+      </if>
+      <if test="password != null">
+        password,
+      </if>
+      <if test="realName != null">
+        real_name,
+      </if>
+      <if test="mobileZone != null">
+        mobile_zone,
+      </if>
+      <if test="mobile != null">
+        mobile,
+      </if>
+      <if test="email != null">
+        email,
+      </if>
+      <if test="status != null">
+        status,
+      </if>
+      <if test="userLevel != null">
+        user_level,
+      </if>
+      <if test="renderLevel != null">
+        render_level,
+      </if>
+      <if test="memo != null">
+        memo,
+      </if>
+      <if test="sysOrgId != null">
+        sys_org_id,
+      </if>
+      <if test="sysDepId != null">
+        sys_dep_id,
+      </if>
+      <if test="userType != null">
+        user_type,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="updateTime != null">
+        update_time,
+      </if>
+      <if test="createUser != null">
+        create_user,
+      </if>
+      <if test="updateUser != null">
+        update_user,
+      </if>
+      <if test="surNames != null">
+        sur_names,
+      </if>
+      <if test="voice != null">
+        voice,
+      </if>
+      <if test="deviceCount != null">
+        device_count,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="account != null">
+        #{account,jdbcType=VARCHAR},
+      </if>
+      <if test="password != null">
+        #{password,jdbcType=VARCHAR},
+      </if>
+      <if test="realName != null">
+        #{realName,jdbcType=VARCHAR},
+      </if>
+      <if test="mobileZone != null">
+        #{mobileZone,jdbcType=VARCHAR},
+      </if>
+      <if test="mobile != null">
+        #{mobile,jdbcType=VARCHAR},
+      </if>
+      <if test="email != null">
+        #{email,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=INTEGER},
+      </if>
+      <if test="userLevel != null">
+        #{userLevel,jdbcType=VARCHAR},
+      </if>
+      <if test="renderLevel != null">
+        #{renderLevel,jdbcType=VARCHAR},
+      </if>
+      <if test="memo != null">
+        #{memo,jdbcType=VARCHAR},
+      </if>
+      <if test="sysOrgId != null">
+        #{sysOrgId,jdbcType=INTEGER},
+      </if>
+      <if test="sysDepId != null">
+        #{sysDepId,jdbcType=INTEGER},
+      </if>
+      <if test="userType != null">
+        #{userType,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null">
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createUser != null">
+        #{createUser,jdbcType=INTEGER},
+      </if>
+      <if test="updateUser != null">
+        #{updateUser,jdbcType=INTEGER},
+      </if>
+      <if test="surNames != null">
+        #{surNames,jdbcType=VARCHAR},
+      </if>
+      <if test="voice != null">
+        #{voice,jdbcType=INTEGER},
+      </if>
+      <if test="deviceCount != null">
+        #{deviceCount,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <!-- <insert id="insertSelective" parameterType="com.bim.entity.SysUser">
+    insert into sys_user
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="account != null">
+        account,
+      </if>
+      <if test="surNames != null">
+        sur_names,
+      </if>
+      <if test="password != null">
+        password,
+      </if>
+      <if test="realName != null">
+        real_name,
+      </if>
+      <if test="mobileZone != null">
+        mobile_zone,
+      </if>
+      <if test="mobile != null">
+        mobile,
+      </if>
+      <if test="email != null">
+        email,
+      </if>
+      <if test="status != null">
+        status,
+      </if>
+      <if test="userLevel != null">
+        user_level,
+      </if>
+      <if test="userLevel != null">
+        render_level,
+      </if>
+      <if test="memo != null">
+        memo,
+      </if>
+      <if test="sysOrgId != null">
+        sys_org_id,
+      </if>
+      <if test="sysDepId != null">
+        sys_dep_id,
+      </if>
+      <if test="userType != null">
+        user_type,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="updateTime != null">
+        update_time,
+      </if>
+      <if test="createUser != null">
+        create_user,
+      </if>
+      <if test="updateUser != null">
+        update_user,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="account != null">
+        #{account,jdbcType=VARCHAR},
+      </if>
+      <if test="surNames != null">
+        #{surNames,jdbcType=VARCHAR},
+      </if>
+      <if test="password != null">
+        #{password,jdbcType=VARCHAR},
+      </if>
+      <if test="realName != null">
+        #{realName,jdbcType=VARCHAR},
+      </if>
+      <if test="mobileZone != null">
+        #{mobileZone,jdbcType=VARCHAR},
+      </if>
+      <if test="mobile != null">
+        #{mobile,jdbcType=VARCHAR},
+      </if>
+      <if test="email != null">
+        #{email,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=INTEGER},
+      </if>
+      <if test="userLevel != null">
+        #{userLevel,jdbcType=VARCHAR},
+      </if>
+      <if test="renderLevel != null">
+        #{renderLevel,jdbcType=VARCHAR},
+      </if>
+      <if test="memo != null">
+        #{memo,jdbcType=VARCHAR},
+      </if>
+      <if test="sysOrgId != null">
+        #{sysOrgId,jdbcType=INTEGER},
+      </if>
+      <if test="sysDepId != null">
+        #{sysDepId,jdbcType=INTEGER},
+      </if>
+      <if test="userType != null">
+        #{userType,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null">
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createUser != null">
+        #{createUser,jdbcType=INTEGER},
+      </if>
+      <if test="updateUser != null">
+        #{updateUser,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert> -->
+  <update id="updateByPrimaryKeySelective" parameterType="com.bim.entity.SysUser">
+    update sys_user
+    <set>
+      <if test="account != null">
+        account = #{account,jdbcType=VARCHAR},
+      </if>
+      <if test="password != null">
+        password = #{password,jdbcType=VARCHAR},
+      </if>
+      <if test="realName != null">
+        real_name = #{realName,jdbcType=VARCHAR},
+      </if>
+      <if test="mobileZone != null">
+        mobile_zone = #{mobileZone,jdbcType=VARCHAR},
+      </if>
+      <if test="mobile != null">
+        mobile = #{mobile,jdbcType=VARCHAR},
+      </if>
+      <if test="email != null">
+        email = #{email,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        status = #{status,jdbcType=INTEGER},
+      </if>
+      <if test="userLevel != null">
+        user_level = #{userLevel,jdbcType=VARCHAR},
+      </if>
+      <if test="renderLevel != null">
+        render_level = #{renderLevel,jdbcType=VARCHAR},
+      </if>
+      <if test="memo != null">
+        memo = #{memo,jdbcType=VARCHAR},
+      </if>
+      <if test="sysOrgId != null">
+        sys_org_id = #{sysOrgId,jdbcType=INTEGER},
+      </if>
+      <if test="sysDepId != null">
+        sys_dep_id = #{sysDepId,jdbcType=INTEGER},
+      </if>
+      <if test="userType != null">
+        user_type = #{userType,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null">
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createUser != null">
+        create_user = #{createUser,jdbcType=INTEGER},
+      </if>
+      <if test="updateUser != null">
+        update_user = #{updateUser,jdbcType=INTEGER},
+      </if>
+      <if test="surNames != null">
+        sur_names = #{surNames,jdbcType=VARCHAR},
+      </if>
+      <if test="voice != null">
+        voice = #{voice,jdbcType=INTEGER},
+      </if>
+      <if test="deviceCount != null">
+        device_count = #{deviceCount,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  	<!-- 根据项目和关键字查询用户 -->
+  	<select id="getListByProAndKey" resultType="map">
+		select DISTINCT b.id,b.real_name,b.sur_names from sys_user_project_menu_rel a 
+		inner join sys_user b on a.user_id=b.id 
+		where project_id=#{proId,jdbcType=INTEGER} and user_type=1
+		<if test=" key!=null and key!=''">
+			and real_name like concat('%',#{key,jdbcType=VARCHAR},'%')
+		</if>
+	</select>
+	<!-- 根据组织id查询用户list 并不允许查询出自己and sys_org_id!='' and sys_org_id is not null-->
+  <select id="getListByIds" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from sys_user
+    where id in
+    <foreach item="item" collection="ids" index="index" open="(" separator="," close=")"> 
+		#{item}
+	</foreach>
+  </select>
+  <select id="getUsersOfManager" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+	SELECT u.*, d.show_name,o.name sysOrgName, dep.department_name
+	FROM sys_user u, sys_dict d, sys_organization o, sys_department dep
+	WHERE u.user_level = d.code
+	AND o.id = dep.org_id
+	AND dep.id = u.sys_dep_id
+	AND u.id in
+	(SELECT user_id
+	FROM sys_user_group_rel
+	WHERE group_id in
+	(SELECT DISTINCT group_id 
+	FROM sys_user_group_rel
+	WHERE user_id = #{userId,jdbcType=INTEGER}))
+	
+	<if test="sysDepId != null and sysDepId != ''"> 
+		AND sys_dep_id = #{sysDepId,jdbcType=INTEGER}
+	 </if>
+	<if test="mobile != null and mobile != ''"> 
+	 	AND mobile like CONCAT('%',#{mobile},'%')  
+	 </if>
+	
+  </select>
+  <select id="getAll" resultMap="BaseResultMap">
+    select 
+    id,sur_names,real_name
+    from sys_user
+  </select>
+  
+  <update id="addDeviceCount" >
+    update sys_user set device_count=device_count+1 where id=#{id,jdbcType=INTEGER}
+  </update>
+</mapper>

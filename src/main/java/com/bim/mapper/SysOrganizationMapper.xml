@@ -1,0 +1,242 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bim.dao.SysOrganizationMapper">
+  <resultMap id="BaseResultMap" type="com.bim.entity.SysOrganization">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="name_en" jdbcType="VARCHAR" property="nameEn" />
+    <result column="short_name" jdbcType="VARCHAR" property="shortName" />
+    <result column="region" jdbcType="VARCHAR" property="region" />
+    <result column="status" jdbcType="INTEGER" property="status" />
+    <result column="memo" jdbcType="VARCHAR" property="memo" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    <result column="create_user" jdbcType="INTEGER" property="createUser" />
+    <result column="update_user" jdbcType="INTEGER" property="updateUser" />
+  </resultMap>
+  <resultMap id="IncludeDepResultMap" type="com.bim.entity.SysOrganization">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="short_name" jdbcType="VARCHAR" property="shortName" />
+    <result column="region" jdbcType="VARCHAR" property="region" />
+    <result column="status" jdbcType="INTEGER" property="status" />
+    <result column="memo" jdbcType="VARCHAR" property="memo" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    <result column="create_user" jdbcType="INTEGER" property="createUser" />
+    <result column="update_user" jdbcType="INTEGER" property="updateUser" />
+    <collection property="departments" ofType="com.bim.entity.SysDepartment">
+    	<id column="department_id" jdbcType="INTEGER" property="id" />
+	    <result column="org_id" jdbcType="INTEGER" property="orgId" />
+	    <result column="department_name" jdbcType="VARCHAR" property="departmentName" />
+	    <result column="status" jdbcType="INTEGER" property="status" />
+	    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+	    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+	    <result column="create_user" jdbcType="INTEGER" property="createUser" />
+	    <result column="update_user" jdbcType="INTEGER" property="updateUser" />
+    </collection>
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, name, name_en, short_name, region, status, memo, create_time, update_time, create_user, 
+    update_user
+  </sql>
+  <select id="selectOrgDepByManagerId" parameterType="java.lang.Integer" resultMap="IncludeDepResultMap">
+  	SELECT o.*, d.*, d.id department_id
+	FROM sys_organization o, sys_department d
+	WHERE d.org_id = o.id
+	AND d.id in (
+		SELECT DISTINCT u.sys_dep_id
+		FROM sys_user u
+		WHERE id in
+				(SELECT user_id
+				FROM sys_user_group_rel
+				WHERE group_id in
+				(SELECT DISTINCT group_id 
+				FROM sys_user_group_rel
+				WHERE user_id = #{userId,jdbcType=INTEGER}))
+	)
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from sys_organization
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <select id="selectAllOrderByName" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from sys_organization
+    ORDER BY name
+  </select>
+  <select id="selectByOrgNameOrShortName" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from sys_organization
+    <where>
+      <if test="name != null">
+        name = #{name,jdbcType=VARCHAR}
+      </if>
+      <if test="shortName != null">
+        short_name = #{shortName,jdbcType=VARCHAR}
+      </if>
+    </where>
+  </select>
+  <delete id="betchDelete">
+    delete from sys_organization
+    where id in
+    <foreach item="item" collection="ids" index="index" open="(" separator="," close=")"> 
+		#{item}
+	</foreach>
+  </delete>
+  <select id="selectAllOrById" parameterType="com.bim.entity.SysUser" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from sys_organization
+    <where>
+		 <if test="userType!=0"> 
+		 	id = #{sysOrgId,jdbcType=INTEGER} 
+		 </if>
+		 <if test="mobile != null and mobile != ''"> 
+		 	and name like CONCAT('%',#{mobile},'%')  
+		 </if>
+    </where>
+    order by create_time desc
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from sys_organization
+    order by create_time desc
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from sys_organization
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.bim.entity.SysOrganization">
+    insert into sys_organization (id, name, name_en, 
+      short_name, region, status, 
+      memo, create_time, update_time, 
+      create_user, update_user)
+    values (#{id,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR}, #{nameEn,jdbcType=VARCHAR}, 
+      #{shortName,jdbcType=VARCHAR}, #{region,jdbcType=VARCHAR}, #{status,jdbcType=INTEGER}, 
+      #{memo,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}, 
+      #{createUser,jdbcType=INTEGER}, #{updateUser,jdbcType=INTEGER})
+  </insert>
+  <insert id="insertSelective" parameterType="com.bim.entity.SysOrganization">
+    insert into sys_organization
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="name != null">
+        name,
+      </if>
+      <if test="nameEn != null">
+        name_en,
+      </if>
+      <if test="shortName != null">
+        short_name,
+      </if>
+      <if test="region != null">
+        region,
+      </if>
+      <if test="status != null">
+        status,
+      </if>
+      <if test="memo != null">
+        memo,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="updateTime != null">
+        update_time,
+      </if>
+      <if test="createUser != null">
+        create_user,
+      </if>
+      <if test="updateUser != null">
+        update_user,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="name != null">
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="nameEn != null">
+        #{nameEn,jdbcType=VARCHAR},
+      </if>
+      <if test="shortName != null">
+        #{shortName,jdbcType=VARCHAR},
+      </if>
+      <if test="region != null">
+        #{region,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=INTEGER},
+      </if>
+      <if test="memo != null">
+        #{memo,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null">
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createUser != null">
+        #{createUser,jdbcType=INTEGER},
+      </if>
+      <if test="updateUser != null">
+        #{updateUser,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.bim.entity.SysOrganization">
+    update sys_organization
+    <set>
+      <if test="name != null">
+        name = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="nameEn != null">
+        name_en = #{nameEn,jdbcType=VARCHAR},
+      </if>
+      <if test="shortName != null">
+        short_name = #{shortName,jdbcType=VARCHAR},
+      </if>
+      <if test="region != null">
+        region = #{region,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        status = #{status,jdbcType=INTEGER},
+      </if>
+      <if test="memo != null">
+        memo = #{memo,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null">
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createUser != null">
+        create_user = #{createUser,jdbcType=INTEGER},
+      </if>
+      <if test="updateUser != null">
+        update_user = #{updateUser,jdbcType=INTEGER},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.bim.entity.SysOrganization">
+    update sys_organization
+    set name = #{name,jdbcType=VARCHAR},
+      name_en = #{nameEn,jdbcType=VARCHAR},
+      short_name = #{shortName,jdbcType=VARCHAR},
+      region = #{region,jdbcType=VARCHAR},
+      status = #{status,jdbcType=INTEGER},
+      memo = #{memo,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      update_time = #{updateTime,jdbcType=TIMESTAMP},
+      create_user = #{createUser,jdbcType=INTEGER},
+      update_user = #{updateUser,jdbcType=INTEGER}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>
