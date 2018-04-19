@@ -1,5 +1,7 @@
 package com.bim.dao;
 
+import java.util.List;
+
 import com.bim.entity.EasyCourse;
 
 public interface EasyCourseMapper {
@@ -14,4 +16,6 @@ public interface EasyCourseMapper {
     int updateByPrimaryKeySelective(EasyCourse record);
 
     int updateByPrimaryKey(EasyCourse record);
+
+	List<EasyCourse> selectByClassid(Integer classId);
 }

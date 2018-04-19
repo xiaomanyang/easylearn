@@ -10,34 +10,56 @@
     <div data-options="region:'center'">
     	<table id="dt_course"></table>
     </div>
-    <button type="submit"></button>
 </div>
 
+        {field:'image',title:'课程图片',width:100},
+        {field:'person',title:'参与人数',width:100},
+        {field:'praise',title:'好评值',width:100},
+
+
 <div id="courseAdd">
-<form id="courseForm" class="form-horizontal">
-	<input id="id" name="id" type="hidden">
+<form id="courseForm" class="form-horizontal" method = "post" enctype="multipart/form-data">
+	<input id="course_id" name="id" type="hidden">
 	<div class="form-group">
-		<label class="col-sm-2 control-label" for="parentCode">上级代码</label>
+		<label class="col-sm-2 control-label" for="courseName">课程名称</label>
 		<div class="col-sm-10">
-			<input class="form-control" id="parentCode" name="parentCode" type="text">
+			<input class="form-control" name="courseName" type="text">
 		</div>
 	</div>
 	<div class="form-group">
-		<label class="col-sm-2 control-label" for="code">字典代码</label>
+		<label class="col-sm-2 control-label" for="courseNo">课程代码</label>
 		<div class="col-sm-10">
-			<input class="form-control" id="code" name="code" type="text">
+			<input class="form-control" name="courseNo" type="text">
 		</div>
 	</div>
 	<div class="form-group">
-		<label class="col-sm-2 control-label" for="showName">显示名称</label>
+		<label class="col-sm-2 control-label" for="days">课程天数</label>
 		<div class="col-sm-10">
-			<input class="form-control" id="showName" name="showName" type="text">
+			<input class="form-control" name="days" type="text">
 		</div>
 	</div>
 	<div class="form-group">
-		<label class="col-sm-2 control-label" for="memo">备注</label>
+		<label class="col-sm-2 control-label" for="person">参与人数</label>
 		<div class="col-sm-10">
-			<textarea rows="4" cols="" class="form-control" id="memo" name="memo"></textarea>
+			<input class="form-control" name="person" type="text">
+		</div>
+	</div>
+	<div class="form-group">
+		<label class="col-sm-2 control-label">图片</label>
+		<div class="col-sm-10">
+			<input class="form-control" id="courseImgfile" name="courseImgfile"/>
+		</div>
+	</div>
+	<div class="form-group">
+		<label class="col-sm-2 control-label" for="praise">好评值</label>
+		<div class="col-sm-10">
+			<input class="form-control" name="praise" type="text">
+		</div>
+	</div>
+	<div class="form-group">
+		<label class="col-sm-2 control-label" for="brief">课程简介</label>
+		<div class="col-sm-10">
+			<textarea rows="4" cols="" class="form-control"  name="brief"></textarea>
 		</div>
 	</div>
 </form>
@@ -46,10 +68,16 @@
 
 
 <script type="text/javascript">
+console.info('course');
 var baseUrl = '${pageContext.request.contextPath}';
 
+$('#selectClassification').combobox({
+	onChange : function(value){
+		btnRefreshcourse();
+	}
+});
+$('#courseImgfile').filebox({buttonText: '选择图片', width:'387px'});
 $('#dt_course').datagrid({
-	url: '${pageContext.request.contextPath}/course/getListByPage.do',
 	fit : true,
 	border : false,
 	fitColumns : true,
@@ -70,33 +98,29 @@ $('#dt_course').datagrid({
 		hidden:true
 	} ] ],
     columns:[[    
-    	{field:'parentCode',title:'上级代码',hidden:false, width:100},
-        {field:'code',title:'字典代码',width:100},    
-        {field:'showName',title:'字典名称',width:100},
-        {field:'isDelete',title:'启用/禁用',width:100,formatter: function(value,row,index){
-				if (value==0){
-					return "已启用";
-				} else {
-					return "已禁用";
-				}
+    	{field:'courseName',title:'课程名称',hidden:false, width:100},
+        {field:'courseNo',title:'课程代码',width:100},    
+        {field:'brief',title:'课程简介',width:100},
+        {field:'days',title:'课程天数',width:100},
+        {field:'image',title:'课程图片',width:100},
+        {field:'person',title:'参与人数',width:100},
+        {field:'praise',title:'好评值',width:100},
+        {field:'createTime',title:'创建时间',width:100,formatter: function(value,row,index){
+        		return formatterdate(value);
 			}
-		},
-        {field:'memo',title:'备注',width:100},
-        /* {field:'_operate',title:'操作',width:110,formatter:formatOper}, */
+		}
     ]],
     toolbar:[{
     	text : '增加',
 		iconCls : 'icon-add',
 		handler : function() {
 			btnAddcourse();
-			refreshcourseValid();
 		}
     } ,'-',{
     	text : '修改',
 		iconCls : 'icon-edit',
 		handler : function() {
 			btnEditcourse();
-			refreshcourseValid();
 		}
 	},'-',{
     	text : '禁用',
@@ -110,20 +134,6 @@ $('#dt_course').datagrid({
 		    var body = $(this).data().datagrid.dc.body2;
 		    body.find('table tbody').append(getEmptyTip()); 
 		  }
-	},
-	onSelect:function(rowIndex, rowData){
-		var btnEnable=$('#coursePanel span[class="l-btn-icon icon-remove"]').prev();
-		if(rowData.isDelete==1){
-			btnEnable.text("启用");
-		}else{
-			btnEnable.text("禁用");
-		}
-	},
-	onUnselect:function(rowIndex, rowData){
-		var rows = $('#dt_course').datagrid("getSelections");
-		if(rows.length>0){
-			$('#coursePanel span[class="l-btn-icon icon-remove"]').prev().text(rows[0].isDelete==1?"启用":"禁用");
-		}
 	}
 });
 
@@ -131,15 +141,15 @@ $('#dt_course').datagrid({
 /* 获取数据 */
 function btnRefreshcourse()
 {
-	$('#dt_course').datagrid('load', {    
-		'searchKey':$("#txtcourseKey").val()
+	$('#dt_course').datagrid({  
+		url: baseUrl+'/course/list.do',
+		queryParams: {classId : $('#selectClassification').combobox('getValue')}
 	});
 }
 
 /* 增加 */
 function btnAddcourse(){
-	$('#id').val('');
-	$('#courseForm')[0].reset();
+	$('#courseForm').form('clear');
 	$('#courseAdd').dialog({title: "增加",iconCls: 'icon-add'});
 	$('#courseAdd').dialog('open');
 }
@@ -193,21 +203,11 @@ function btnBatchOnOff(){
 	});
 }
 
-$('#parentCode').validatebox({required: true});
-$('#code').validatebox({required: true});
-$('#showName').validatebox({required: true});
-
-function refreshcourseValid(){
-	$('#parentCode').validatebox('validate');
-	$('#code').validatebox('validate');
-	$('#showName').validatebox('validate');
-}
-
-/* 添加或編輯按鈕彈出框 */
+/* 添加或编辑 */
 $('#courseAdd').dialog({  
     title: "增加",  
     width: 500,  
-    height: 350,
+    height: 500,
     collapsible:true,
     maximizable:true,
     iconCls: 'icon-add',
@@ -220,26 +220,19 @@ $('#courseAdd').dialog({
 			if(!$('#courseForm').form('validate')){
 				return;
 			}
-			$.ajax({
-				type : "post",  
-	    	    url : baseUrl+"/course/submitForm.do",  
-	    	    data:$("#courseForm").serializeArray(),
-	    	    success : function(result) {  
-	    	    	var json = JSON.parse(result);
-	    	    	if(!json.req){
-	    	    		$.messager.alert('温馨提示',json.msg,'error');
-	    	    	}else{
-	    	    		$('#courseId').val('');
-	    	    		btnRefreshcourse();
-		    	    	$.messager.progress('close');
-		    	    	$('#courseAdd').dialog('close');
+			$('#courseForm').form('submit',{
+				url : baseUrl+"/course/add.do",  
+				success:function(data){    
+					data = $.parseJSON(data);
+					if(data.req){
+						btnRefreshcourse();
+						$('#courseAdd').dialog('close');
 	    	    		$.messager.alert('温馨提示',json.msg,'success');
-	    	    	}
-	    	    },  
-	    	    error : function(XMLHttpRequest, textStatus, errorThrown) {  
-	    	    	$.messager.alert('温馨提示',XMLHttpRequest.responseText,'error');
-	    	    } 
-	    	});
+					}else{
+						$.messager.alert('温馨提示',json.msg,'error');
+					}
+			    }    
+			});
 		}
 	},{
 		text:'关闭',
