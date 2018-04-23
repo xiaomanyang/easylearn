@@ -57,8 +57,14 @@ public class EasyCourseController {
 				file.transferTo(targetFile);
 				course.setImage(requestPath+"/app/"+fileName);
 			}
-			course.setCreateTime(new Date());
-			int result = easyCourseMapper.insertSelective(course);
+			int result = 0;
+			if(null == course.getId()){
+				course.setCreateTime(new Date());
+				result = easyCourseMapper.insertSelective(course);
+				
+			}else{
+				result = easyCourseMapper.updateByPrimaryKeySelective(course);
+			}
 			if(result>0)
 				return R.To(true, null, Code.C_200);
 			return R.To(false, null, Code.C_500);
@@ -70,7 +76,7 @@ public class EasyCourseController {
 	
 	@RequestMapping("delete")
 	@ResponseBody
-	public JSONObject delete(int id){
+	public JSONObject delete(Integer id){
 		int result = easyCourseMapper.deleteByPrimaryKey(id);
 		if(result>0)
 			return R.To(true, null, Code.C_200);

@@ -4,7 +4,7 @@
     <div data-options="region:'north'" class="search_banner">
 		<div class="group">
 			<label>分类：</label>
-			<input id="selectClassification" class="easyui-combobox" style="width: 200px;" data-options="valueField:'id',textField:'classificationName',url:'classification/select.do',panelHeight:'auto',panelMaxHeight:'400'"></input>
+			<input id="selectClassification" class="easyui-combobox" style="width: 200px;" data-options="valueField:'id',textField:'classificationName',url:'classification/select.do',panelHeight:'auto',panelMaxHeight:'400',editable:false"></input>
 		</div>
     </div>
     <div data-options="region:'center'">
@@ -12,14 +12,10 @@
     </div>
 </div>
 
-        {field:'image',title:'课程图片',width:100},
-        {field:'person',title:'参与人数',width:100},
-        {field:'praise',title:'好评值',width:100},
-
-
 <div id="courseAdd">
 <form id="courseForm" class="form-horizontal" method = "post" enctype="multipart/form-data">
 	<input id="course_id" name="id" type="hidden">
+	<input id="class_id" name="classId" type="hidden">
 	<div class="form-group">
 		<label class="col-sm-2 control-label" for="courseName">课程名称</label>
 		<div class="col-sm-10">
@@ -96,6 +92,10 @@ $('#dt_course').datagrid({
 		field : 'id',
 		sortable : true,
 		hidden:true
+	}, {
+		field : 'classId',
+		sortable : true,
+		hidden:true
 	} ] ],
     columns:[[    
     	{field:'courseName',title:'课程名称',hidden:false, width:100},
@@ -123,7 +123,7 @@ $('#dt_course').datagrid({
 			btnEditcourse();
 		}
 	},'-',{
-    	text : '禁用',
+    	text : '删除',
 		iconCls : 'icon-remove',
 		handler : function() {
 			btnBatchOnOff();
@@ -149,7 +149,13 @@ function btnRefreshcourse()
 
 /* 增加 */
 function btnAddcourse(){
+	var classId = $('#selectClassification').combobox('getValue');
+	if(null == classId || ''==classId ){
+		$.messager.alert('提示','请选择分类','info');
+		return;
+	}
 	$('#courseForm').form('clear');
+	$('#class_id').val(classId);
 	$('#courseAdd').dialog({title: "增加",iconCls: 'icon-add'});
 	$('#courseAdd').dialog('open');
 }
@@ -165,29 +171,25 @@ function btnEditcourse(){
 		$.messager.alert('警告','请选择单条记录修改！','info');
 		return;
 	}
-	setWebControlValueByForm('courseForm',rows[0]);
+	$('#courseForm').form('load',rows[0]);
+	$('#courseImgfile').filebox('setText', rows[0].image);
 	$('#courseAdd').dialog({title: "编辑",iconCls: 'icon-edit'});
 	$('#courseAdd').dialog('open');
 }
 
 /* 批量启用/禁用 */
 function btnBatchOnOff(){
-	var textEnable=$('#coursePanel span[class="l-btn-icon icon-remove"]').prev().text();
 	var rows = $('#dt_course').datagrid("getSelections");    
 	if(rows.length<=0){
-		$.messager.alert('警告','请选择要'+textEnable+'的行','info');
+		$.messager.alert('警告','请选择要删除的行','info');
 		return;
 	}
-	var delIds=new Array();
-	for(var index in rows){
-		delIds.push(rows[index].id);
-	}
-	var paramIds=jQuery.param({'ids':delIds,'isEnable':textEnable=="禁用"?1:0},true);
-	$.messager.confirm('确认','您确认想要'+textEnable+'当前选中记录吗？',function(r){    
+	var paramIds=jQuery.param({'id':rows[0].id},true);
+	$.messager.confirm('确认','您确认想要删除当前选中记录吗？',function(r){    
 	    if (r){    
 	    	$.ajax({  
 	    		type : "post",  
-	    	    url : baseUrl+"/course/batchEnableByIds.do",   
+	    	    url : baseUrl+"/course/delete.do",   
 	    	    data : paramIds,  
 	    	    success : function(result) {
 	    	    	var json = JSON.parse(result);
